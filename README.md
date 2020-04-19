@@ -1,6 +1,10 @@
 # ThereminAi
 A personal project to train an Ai to play the Theremin Digital Music Instrument
 
+## Slack Channel
+
+https://thereminai.slack.com
+
 # Installation Guide
 
 This is a step-by-step installation guide to get everything ready to work on the project.
