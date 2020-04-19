@@ -1,6 +1,67 @@
 # ThereminAi
 A personal project to train an Ai to play the Theremin Digital Music Instrument
 
+# Installation Guide
+
+This is a step-by-step installation guide to get everything ready to work on the project.
+- Install main dependencies **Python 3.6**, **PIP Python Package Manager** and **Python Virtual Environments**
+- Setting up a **Python Virtual Environment** to isolate the project
+- Install specific project dependencies from the requirements.txt file
+
+## Operating System
+- Tested on `Ubuntu 18.04.4 LTS`
+
+## Install Python
+
+TODO
+
+### Check Python Version
+
+Run `python3 --version` to check your Python version it should be 3.6 or later.
+
+## Install Python Package Manager
+
+TODO
+
+## Install Virtual Environments
+
+- Run `pip3 install virtualenv`
+- Check version with `virtualenv --version`
+
+
+## Clone the Project
+
+- Run `git clone ...`
+
+## Setup Virtual Environment for the project
+
+For ease of use the virtual environment (foler `venv`) will be created in the project folder itself **but excluded** from version conrol using the `.gitignore`file.
+
+- Navigate into the cloned project folder `cd ThereminiAi`
+- Run `virtualenv venv` to create the virtual environment
+
+In the next step the virtual environment is activated
+
+- Run `source venv/bin/activate`
+- (Windows Users need to run `venv\Scripts\activate` inside the project folder where the venv folder has been created)
+
+Your Terminal should now change and include the (venv) prefix e.g.:
+
+```
+(venv) user@computer:~/04_projects/ThereminAi$
+```
+
+## Install required dependencies
+
+The requirements.txt file contains all necessary requirements. Go ahead and install them:
+sounddevice
+
+- Run `pip3 install -r requirements.txt`
+
+
+# Notes on GitIgnore
+
+- Further Reading: https://github.com/github/gitignore
 
 
 # Hardware
