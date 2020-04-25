@@ -8,11 +8,11 @@ Created on Mon Apr 20 21:41:30 2020
 import serial
 import time
 
-freqArray=[20,20,20,40,110,110,70,50,55,10,175,175,170,170,25]
+freqArray=[48,170,90]
 
 def initialize():
-      ser.write(bytes([90]))
-      time.sleep(5)
+      ser.write(bytes([80]))
+      time.sleep(1)
 
 def fitFreq(target):
       global ser
@@ -29,6 +29,6 @@ if ser.isOpen() == False:
       ser.open()
 
 initialize()
-for i in range (15):
-      fitFreq(freqArray[i])
-      time.sleep(0.5)
+for i in range (4):
+      fitFreq(freqArray[i-1])
+      time.sleep(1)
