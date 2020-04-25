@@ -19,6 +19,11 @@ This is a step-by-step installation guide to get everything ready to work on the
 
 This will be a longer story between Linux and Windows to get this working...
 
+### Python Sounddevice
+
+Simple and great library to get audio signals from devices into NumPy Arrays
+https://python-sounddevice.readthedocs.io/en/0.3.15/
+
 ### PortAudio http://www.portaudio.com/download.html
 
 sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
