@@ -24,9 +24,12 @@ ser = serial.Serial()
 ser.port = 'COM8'
 ser.baudrate = 9600
 ser.timeout = 0
+
 # open port if not already open
 if ser.isOpen() == False:
       ser.open()
+      
+print(ser.readline(100))
 
 initialize()
 for i in range (5):
