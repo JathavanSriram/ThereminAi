@@ -8,7 +8,7 @@ Created on Mon Apr 20 21:41:30 2020
 import serial
 import time
 
-freqArray=[48,170,170,48]
+freqArray=[48,170,170,48,90]
 
 def initialize():
       ser.write(bytes([80]))
@@ -16,6 +16,11 @@ def initialize():
 
 def fitFreq(target):
       global ser
+      if target < 48:
+            target = 48
+      elif target > 170:
+            target = 170
+            
       ser.write(bytes([target]))
       
 #main
@@ -29,6 +34,6 @@ if ser.isOpen() == False:
       ser.open()
 
 initialize()
-for i in range (5):
+for i in range (6):
       fitFreq(freqArray[i-1])
       time.sleep(1)

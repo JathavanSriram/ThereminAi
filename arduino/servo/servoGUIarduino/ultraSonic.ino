@@ -15,5 +15,5 @@ void loop() {
    a=sr04.Distance();
    Serial.println(a);
    //Serial.println("cm");
-   delay(1000);
+   delay(100);
 }
