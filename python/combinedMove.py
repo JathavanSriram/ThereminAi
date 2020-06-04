@@ -7,6 +7,9 @@ Created on Mon Apr 20 21:41:30 2020
 #This program drives the servo to follow a angle sequence, hence a tone sequenc with variable timing
 import serial
 import time
+import audio_to_freq as freqana
+
+
 """import socket
 import threading
 import sys
@@ -39,8 +42,9 @@ def moveServo(target):
             
       ser.write(bytes([target]))
       
-def fitServo(ser,target,angleTemp):
-      myData = (ser.readline().decode("utf-8"))
+def fitServo(ser,target,angleTemp,newfrequency):
+      # myData = (ser.readline().decode("utf-8"))
+      myData = newfrequency
       moveServo(angleTemp)
       print(myData)
       distTemp = int(myData)
@@ -60,7 +64,7 @@ def fitServo(ser,target,angleTemp):
 #main----------------
 global ser
 ser = serial.Serial()
-ser.port = 'COM8'
+ser.port = '/dev/ttyACM0'
 ser.baudrate = 9600
 #ser.timeout = 0
 # open port if not already open
@@ -69,7 +73,7 @@ if ser.isOpen() == False:
 
 initialize()
 
-target = 10
+target = 700
 angleTemp = 90
 
 """#Get host and port
@@ -91,7 +95,9 @@ receiveThread.start()"""
 
 while True:
       if (ser.inWaiting()>0):
-            angleTemp = fitServo(ser,target,angleTemp)
+            freq = freqana.record_audio()
+            # print("My freq is %s Hz" % freq)
+            angleTemp = fitServo(ser,target,angleTemp,freq)
             moveServo(angleTemp)
         
       time.sleep(0.4)

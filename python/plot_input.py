@@ -7,6 +7,7 @@ Matplotlib and NumPy have to be installed.
 import argparse
 import queue
 import sys
+import math
 
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
@@ -20,7 +21,6 @@ def int_or_str(text):
         return int(text)
     except ValueError:
         return text
-
 
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument(
@@ -44,19 +44,20 @@ parser.add_argument(
     '-w', '--window', type=float, default=200, metavar='DURATION',
     help='visible time slot (default: %(default)s ms)')
 parser.add_argument(
-    '-i', '--interval', type=float, default=30,
+    '-i', '--interval', type=float, default=1000,
     help='minimum time between plot updates (default: %(default)s ms)')
 parser.add_argument(
     '-b', '--blocksize', type=int, help='block size (in samples)')
 parser.add_argument(
     '-r', '--samplerate', type=float, help='sampling rate of audio device')
 parser.add_argument(
-    '-n', '--downsample', type=int, default=10, metavar='N',
+    '-n', '--downsample', type=int, default=1, metavar='N',
     help='display every Nth sample (default: %(default)s)')
 args = parser.parse_args(remaining)
 if any(c < 1 for c in args.channels):
     parser.error('argument CHANNEL: must be >= 1')
 mapping = [c - 1 for c in args.channels]  # Channel numbers start with 1
+
 q = queue.Queue()
 
 
@@ -65,7 +66,45 @@ def audio_callback(indata, frames, time, status):
     if status:
         print(status, file=sys.stderr)
     # Fancy indexing with mapping creates a (necessary!) copy:
-    q.put(indata[::args.downsample, mapping])
+    conversion = indata[::args.downsample, mapping]
+    # print("This is the conversion",conversion)
+    q.put(conversion)
+
+
+def findfreq(inputdata):
+
+    inputdata = np.ravel(inputdata)
+    
+    sine_wave = 10*[np.sin(2 * np.pi * 440 * x/48000) for x in range(48000)]
+    sine_wave2 = 9*[np.sin(2 * np.pi * 540 * x/48000) for x in range(48000)]
+    sine_wave = sine_wave + sine_wave2
+    # print("Size of Input data is", len(inputdata))
+    #data_fft = np.fft.fft(inputdata)
+    #frequencies = np.abs(data_fft)
+    #print("The frequency is {} Hz".format(np.argmax(frequencies)))
+    ## print(len(sine_wave))
+    
+    # samplerate = sd.query_devices(args.device, 'input')['default_samplerate']
+    # print("This is the samplerate, ", samplerate)  
+    w = np.fft.fft(inputdata)
+    #w = np.fft.fft(sine_wave)
+    print("Lenght of FFT Output", w.shape)
+    # print(w)
+    freqs = np.fft.fftfreq(len(w))
+    print("Lenght of FFT FREQ Output", freqs.shape)
+    
+    # print(freqs.min(), freqs.max())
+    # (-0.5, 0.499975)
+
+    # Find the peak in the coefficients
+    idx = np.argmax(np.abs(w))
+    # print("This is idx,",idx)
+    freq = freqs[idx]
+    freq_in_hertz = np.around(abs(freq * 44100))
+    print("Frequency should be, ", freq_in_hertz)
+    # 439.8975
+
+    return 0
 
 
 def update_plot(frame):
@@ -79,6 +118,8 @@ def update_plot(frame):
     while True:
         try:
             data = q.get_nowait()
+            ftransformed = findfreq(data)
+            
         except queue.Empty:
             break
         shift = len(data)
@@ -86,34 +127,43 @@ def update_plot(frame):
         plotdata[-shift:, :] = data
     for column, line in enumerate(lines):
         line.set_ydata(plotdata[:, column])
+    
+    
     return lines
 
 
-try:
-    if args.samplerate is None:
-        device_info = sd.query_devices(args.device, 'input')
-        args.samplerate = device_info['default_samplerate']
+if __name__ == "__main__":
 
-    length = int(args.window * args.samplerate / (1000 * args.downsample))
-    plotdata = np.zeros((length, len(args.channels)))
+    try:
+        if args.samplerate is None:
+            device_info = sd.query_devices(args.device, 'input')
+            args.samplerate = device_info['default_samplerate']
+            print("The sample rate is,:", args.samplerate)
 
-    fig, ax = plt.subplots()
-    lines = ax.plot(plotdata)
-    if len(args.channels) > 1:
-        ax.legend(['channel {}'.format(c) for c in args.channels],
-                  loc='lower left', ncol=len(args.channels))
-    ax.axis((0, len(plotdata), -1, 1))
-    ax.set_yticks([0])
-    ax.yaxis.grid(True)
-    ax.tick_params(bottom=False, top=False, labelbottom=False,
-                   right=False, left=False, labelleft=False)
-    fig.tight_layout(pad=0)
+        length = int(args.window * args.samplerate / (1000 * args.downsample))
+        plotdata = np.zeros((length, len(args.channels)))
 
-    stream = sd.InputStream(
-        device=args.device, channels=max(args.channels),
-        samplerate=args.samplerate, callback=audio_callback)
-    ani = FuncAnimation(fig, update_plot, interval=args.interval, blit=True)
-    with stream:
-        plt.show()
-except Exception as e:
-    parser.exit(type(e).__name__ + ': ' + str(e))
+        fig, ax = plt.subplots()
+        lines = ax.plot(plotdata)
+        if len(args.channels) > 1:
+            ax.legend(['channel {}'.format(c) for c in args.channels],
+                    loc='lower left', ncol=len(args.channels))
+        ax.axis((0, len(plotdata), -1, 1))
+        ax.set_yticks([0])
+        ax.yaxis.grid(True)
+        ax.tick_params(bottom=False, top=False, labelbottom=False,
+                    right=False, left=False, labelleft=False)
+        fig.tight_layout(pad=0)
+
+        print("DEVICE ID IS:", args.device)
+
+        stream = sd.InputStream(
+            device=args.device, channels=1,
+            samplerate=44100, callback=audio_callback, blocksize=8000, dtype='int16')
+
+        ani = FuncAnimation(fig, update_plot, interval=args.interval, blit=True)
+
+        with stream:
+            plt.show()
+    except Exception as e:
+        parser.exit(type(e).__name__ + ': ' + str(e))
