@@ -8,6 +8,7 @@ total_connections = 0
 #Client class, new instance created for each connected client
 #Each instance has the socket and address that is associated with items
 #Along with an assigned ID and a name chosen by the client
+#1
 class Client(threading.Thread):
     def __init__(self, socket, address, id, name, signal):
         threading.Thread.__init__(self)
