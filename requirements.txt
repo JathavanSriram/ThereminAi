@@ -4,7 +4,7 @@ future==0.18.2
 iso8601==0.1.12
 kiwisolver==1.2.0
 matplotlib==3.2.1
-numpy==1.18.2
+numpy==1.22.0
 PyAudio==0.2.11
 pycparser==2.20
 pyparsing==2.4.7
